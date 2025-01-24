@@ -1,0 +1,20 @@
+<!-- core/templates/core/material_list.html -->
+
+{% extends "core/base.html" %}
+
+{% block content %}
+  <h2>Materials for {{ project.name }}</h2>
+  <a href="{% url 'material_create' project.pk %}" class="btn btn-primary mb-3">Add New Material</a>
+  <ul class="list-group">
+    {% for material in materials %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        {{ material.name }} - Quantity: {{ material.quantity }} - Total Cost: ${{ material.total_cost }}
+        <span>
+          <a href="{% url 'material_edit' material.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+          <a href="{% url 'material_delete' material.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+        </span>
+      </li>
+    {% endfor %}
+  </ul>
+  <a href="{% url 'project_list' %}" class="btn btn-secondary mt-3">Back to Projects</a>
+{% endblock %}

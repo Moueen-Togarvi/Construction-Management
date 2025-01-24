@@ -1,0 +1,75 @@
+
+{% extends "core/base.html" %}
+
+{% block content %}
+  <h2>Projects</h2>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    
+    <a href="{% url 'project_create' %}" class="btn btn-primary align-items-center mb-3 ">Create New Project</a>
+  </div>
+  <div class="modal-body align-items-center mb-3">
+    <form id="addMaterialForm">
+        <div class="mb-3">
+            <label for="materialName" class="form-label">Material</label>
+            <select id="materialName" name="material_name" class="form-select">
+                <!-- Material options will be loaded dynamically -->
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="materialUnit" class="form-label">Unit</label>
+            <input type="text" id="materialUnit" name="material_unit" class="form-control" readonly>
+        </div>
+        <div class="mb-3">
+            <label for="materialQuantity" class="form-label">Quantity</label>
+            <input type="number" id="materialQuantity" name="quantity" class="form-control" min="1" required>
+        </div>
+        <button type="button" class="btn btn-primary" id="calculateButton">Calculate</button>
+    </form>
+</div>
+  <ul class="list-group">
+    {% for project in projects %}
+      <li class="list-group-item">
+        <h4>{{ project.name }} - {{ project.number }}</h4>
+        
+        <p>Total Materials Cost: ${{ project.total_materials_cost|floatformat:2 }}</p>
+        
+        <a href="{% url 'material_list' project.pk %}" class="btn btn-sm btn-outline-primary">View Materials</a>
+        <a href="{% url 'excel_import' project.pk %}" class="btn btn-sm btn-outline-secondary">Import Materials from Excel</a>
+        <a href="{% url 'project_edit' project.pk %}" class="btn btn-sm btn-outline-info">Edit</a>
+        <form action="{% url 'project_copy' project.pk %}" method="post" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm btn-outline-warning">Copy</button>
+        </form>
+        <!-- core/templates/core/project_list.html -->
+
+        <a href="{% url 'project_delete' project.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+        
+      </li>
+    {% endfor %}
+    
+  </ul>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Fetch materials when the document is ready
+        fetch('/load-materials/')
+            .then(response => response.json())
+            .then(data => {
+                let materialSelect = document.getElementById('materialName');
+                data.forEach(material => {
+                    let option = document.createElement('option');
+                    option.value = material['Material Name'];
+                    option.setAttribute('data-unit', material['Unit']);  // Store the unit in a data attribute
+                    option.textContent = material['Material Name'];
+                    materialSelect.appendChild(option);
+                });
+            });
+    
+        // Update the unit when a material is selected
+        document.getElementById('materialName').addEventListener('change', function () {
+            let selectedOption = this.options[this.selectedIndex];
+            let unit = selectedOption.getAttribute('data-unit');
+            document.getElementById('materialUnit').value = unit;
+        });
+    });
+    </script>
+{% endblock %}

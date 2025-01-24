@@ -1,0 +1,71 @@
+{% extends "core/base.htmll" %}
+
+{% block content %}
+  <h2>Calculation Results for Project: {{ project.name }}</h2>
+  <button id="calculate-btn">Calculate</button>
+
+  <h3>Total Project Cost: <span id="total-project-cost"></span></h3>
+
+  <h3>Material Costs</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Material Name</th>
+        <th>Quantity</th>
+        <th>Total Cost</th>
+      </tr>
+    </thead>
+    <tbody id="material-costs-table">
+      <!-- Data will be populated by JavaScript -->
+    </tbody>
+  </table>
+
+  <h3>Graphical Representation</h3>
+  <img id="chart-image" src="" alt="Chart Image" />
+
+
+  <a href="{% url 'export_to_excel' project.pk %}">
+    <button>Export to Excel</button>
+</a>
+
+
+<a href="{% url 'export_to_pdf' project.pk %}">
+    <button>Export to PDF</button>
+</a>
+
+
+<a id="download-image-btn">
+    <button>Download Chart as Image</button>
+</a>
+
+<script>
+    document.getElementById('download-image-btn').addEventListener('click', function() {
+        const img = document.getElementById('chart-image');
+        const link = document.createElement('a');
+        link.href = img.src;
+        link.download = 'chart.png';
+        link.click();
+    });
+</script>
+
+
+
+
+  <script>
+    document.getElementById('calculate-btn').addEventListener('click', function() {
+      fetch('{% url "calculate_results" pk=project.pk %}')
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById('total-project-cost').textContent = data.total_project_cost.toFixed(2);
+          const tableBody = document.getElementById('material-costs-table');
+          tableBody.innerHTML = '';
+          data.table_data.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${item.name}</td><td>${item.quantity}</td><td>${item.total_cost.toFixed(2)}</td>`;
+            tableBody.appendChild(row);
+          });
+          document.getElementById('chart-image').src = 'data:image/png;base64,' + data.chart_image;
+        });
+    });
+  </script>
+{% endblock %}

@@ -1,0 +1,13 @@
+<!-- core/templates/core/material_confirm_delete.html -->
+
+{% extends "core/base.html" %}
+
+{% block content %}
+  <h2>Delete Material</h2>
+  <p>Are you sure you want to delete "{{ object.name }}"?</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Confirm</button>
+  </form>
+  <a href="{% url 'material_list' object.project.pk %}" class="btn btn-secondary mt-3">Cancel</a>
+{% endblock %}

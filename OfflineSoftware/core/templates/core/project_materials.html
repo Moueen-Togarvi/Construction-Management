@@ -1,0 +1,119 @@
+<!-- core/templates/core/project_materials.html -->
+
+{% extends "core/base.html" %}
+
+{% block content %}
+  <h2>{{ project.name }} - Material Contributions</h2>
+
+  <div class="row">
+    <div class="col-md-6">
+      <h4>Individual Material Contributions - GWP</h4>
+      <canvas id="gwpMaterialChart"></canvas>
+    </div>
+    <div class="col-md-6">
+      <h4>Total GWP</h4>
+      <canvas id="gwpTotalChart"></canvas>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <h4>Individual Material Contributions - PENRT</h4>
+      <canvas id="penrtMaterialChart"></canvas>
+    </div>
+    <div class="col-md-6">
+      <h4>Total PENRT</h4>
+      <canvas id="penrtTotalChart"></canvas>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Data for individual material contributions
+    const materialNames = {{ material_contributions|json_script:"material_names" }};
+    const gwpContributions = {{ material_contributions|json_script:"gwp_contributions" }};
+    const penrtContributions = {{ material_contributions|json_script:"penrt_contributions" }};
+
+    // Data for total contributions
+    const gwpTotal = {{ gwp_total }};
+    const penrtTotal = {{ penrt_total }};
+
+    // Individual GWP chart
+    const ctxGwpMaterial = document.getElementById('gwpMaterialChart').getContext('2d');
+    const gwpMaterialChart = new Chart(ctxGwpMaterial, {
+      type: 'bar',
+      data: {
+        labels: materialNames.map(item => item.name),
+        datasets: [{
+          label: 'GWP Contribution',
+          data: materialNames.map(item => item.gwp_contribution),
+          backgroundColor: 'rgba(255, 99, 132, 0.2)',
+          borderColor: 'rgba(255, 99, 132, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+
+    // Total GWP chart
+    const ctxGwpTotal = document.getElementById('gwpTotalChart').getContext('2d');
+    const gwpTotalChart = new Chart(ctxGwpTotal, {
+      type: 'doughnut',
+      data: {
+        labels: ['Total GWP'],
+        datasets: [{
+          label: 'Total GWP',
+          data: [gwpTotal],
+          backgroundColor: ['rgba(54, 162, 235, 0.2)'],
+          borderColor: ['rgba(54, 162, 235, 1)'],
+          borderWidth: 1
+        }]
+      }
+    });
+
+    // Individual PENRT chart
+    const ctxPenrtMaterial = document.getElementById('penrtMaterialChart').getContext('2d');
+    const penrtMaterialChart = new Chart(ctxPenrtMaterial, {
+      type: 'bar',
+      data: {
+        labels: materialNames.map(item => item.name),
+        datasets: [{
+          label: 'PENRT Contribution',
+          data: materialNames.map(item => item.penrt_contribution),
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+
+    // Total PENRT chart
+    const ctxPenrtTotal = document.getElementById('penrtTotalChart').getContext('2d');
+    const penrtTotalChart = new Chart(ctxPenrtTotal, {
+      type: 'doughnut',
+      data: {
+        labels: ['Total PENRT'],
+        datasets: [{
+          label: 'Total PENRT',
+          data: [penrtTotal],
+          backgroundColor: ['rgba(255, 206, 86, 0.2)'],
+          borderColor: ['rgba(255, 206, 86, 1)'],
+          borderWidth: 1
+        }]
+      }
+    });
+  </script>
+{% endblock %}
